@@ -14,7 +14,7 @@ async function sendPrompt() {
         console.log('Prompt submitted:', prompt);
 
         const text = response.data.response;
-        addMessageToChatLog('<strong>Big Ti:</strong> ' + text);
+        addMessageToChatLog('<strong>Mr. Blair:</strong> ' + text);
     } catch (error) {
         console.error('Error submitting prompt:', error);
     }
