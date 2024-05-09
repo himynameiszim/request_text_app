@@ -34,7 +34,7 @@ After installing all dependencies, run this on another terminal window to run th
 python3 server.py
 ```
 
-The default server port running will be
+The default server will be running on
 ```[bash]
 http://127.0.0.1:5173/
 ```
