@@ -14,7 +14,7 @@ VITE_BASE_URL=http://127.0.0.1:8000
 ```
 
 ### Frontend
-
+Run this on one terminal window to keep the frontend server running.
 ```[bash]
 cd davinci
 npm install
@@ -22,7 +22,6 @@ npm run dev
 ```
 
 ### Backend
-
 Create an environment with Python 3.9 (Stable Version), I use Anaconda (but I think Miniconda works perfectly fine for the scope of this project).
 ```[bash]
 conda create -n <environment-name> python=3.9
@@ -30,8 +29,7 @@ conda activate <environment-name>
 pip3 install -r requirements.txt
 ```
 
-After installing all dependencies, running backend with the command:
-
+After installing all dependencies, run this on another terminal window to run the application.
 ```[bash]
 python3 server.py
 ```
