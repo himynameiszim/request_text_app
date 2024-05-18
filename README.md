@@ -10,7 +10,7 @@ OPENAI_API_KEY=<YOUR-API-KEY-HERE>
 ```
 Add one .env file inside the davinci folder to point to the endpoint of backend. (I am using the default port)
 ```[code]
-VITE_BASE_URL=http://127.0.0.1:8000
+VITE_BASE_URL=http://127.0.0.1:8001
 ```
 
 ### Frontend
@@ -36,6 +36,5 @@ python3 server.py
 
 The default server will be running on
 ```[bash]
-http://127.0.0.1:5173/
+http://127.0.0.1:5174/
 ```
-
