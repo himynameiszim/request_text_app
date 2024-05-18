@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Interface</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js" defer></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js" defer></script>
+</head>
+<body>
+    <h1>Chat with GPT</h1>
+    <div id="chat-container">
+        <h2>Chat log</h2>
+        <div id="chat-log"></div>
+        <button id="printChat" class="print-button">Print chat log</button>
+        <h2>Your input</h2>
+        <textarea id="prompt" rows="4"></textarea><br>
+        <button id="sendPrompt" class="submit-button">Submit input</button>
+        <h2>Task Textboxes</h2>
+        <div id="task-container"></div>
+        <button id="nextTask" class="submit-button">Next Task</button>
+        <p id="timer">Time remaining: <span id="time"></span></p>
+    </div>
+</body>
+</html>
