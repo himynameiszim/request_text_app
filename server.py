@@ -45,6 +45,8 @@ TASK_INSTRUCTIONS = {
         
     Rules:
         - Response have no questions.
+        - Response have no questions like "How can I assist you today?" and at the end of response.
+        - Response have no exclamatory statements at the first sentence.
         - Keep responses short and professional.
         - Do not initiate the beginning or end of the conversation.
         - Always grant the student's request.
@@ -72,6 +74,8 @@ TASK_INSTRUCTIONS = {
     - AI Interlocutor (Aizu University Student): Responds to the friend's inquiries or statements as an international student from the USA.
     
     Rules:
+        - Response have no questions like "How can I assist you today?" and at the end of response.
+        - Response have no exclamatory statements at the first sentence.
         - Response have no questions.
         - Keep responses short and friendly.
         - Do not initiate the beginning or end of the conversation.
@@ -111,6 +115,8 @@ TASK_INSTRUCTIONS = {
         Act as an Aizu University student working on a research project with a fellow student and friend. Discuss the topic of personal development, focusing on its importance and strategies for achieving it. Start the conversation by responding to your friend's statement, without initiating the beginning or end of the conversation.
         
     Rules:
+        - Response have no questions like "How can I assist you today?" and at the end of response.
+        - Response have no exclamatory statements at the first sentence.
         - Response have no questions.
         - Keep responses short and friendly.
         - Do not initiate the beginning or end of the conversation.
@@ -153,6 +159,8 @@ TASK_INSTRUCTIONS = {
         - AI Interlocutor (Mr. Smith): Responds to the student's inquiries or statements as the owner of the farm business.
         
     Rules:
+        - Response have no questions like "How can I assist you today?" and at the end of response.
+        - Response have no exclamatory statements at the first sentence.
         - Response have no questions.
         - Keep responses short and friendly.
         - Do not initiate the beginning or end of the conversation.
