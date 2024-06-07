@@ -13,7 +13,7 @@ async function sendPrompt() {
     const prompt = promptElement.value.trim();
 
     if (prompt === '') {
-        addMessageToChatLog('<strong>Male:</strong> You are sending an empty message. Type something in chat box and try again.');
+        addMessageToChatLog('<strong>Predatory Scientist:</strong> You are sending an empty message. Type something in chat box and try again.');
         return;
     }
 
@@ -28,7 +28,7 @@ async function sendPrompt() {
         console.log('Prompt submitted:', prompt);
 
         const text = response.data.response;
-        addMessageToChatLog('<strong>Male:</strong> ' + text);
+        addMessageToChatLog('<strong>Predatory Scientist:</strong> ' + text);
     } catch (error) {
         console.error('Error submitting prompt:', error);
     }
@@ -115,3 +115,23 @@ function countDown() {
     }
 }
 const myVar = setInterval(countDown, 1000);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const chatLog = document.getElementById('chat-log');
+    const nextTaskButton = document.getElementById('nextTask');
+
+    nextTaskButton.addEventListener('click', () => {
+        chatLog.innerHTML = ''; // Clear all content in the chat log
+    });
+
+    // Example of adding a message to the chat log (for context)
+    document.getElementById('sendPrompt').addEventListener('click', () => {
+        const prompt = document.getElementById('prompt').value;
+        if (prompt.trim() !== '') {
+            const message = document.createElement('div');
+            message.textContent = prompt;
+            chatLog.appendChild(message);
+            document.getElementById('prompt').value = '';
+        }
+    });
+});

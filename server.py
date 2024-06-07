@@ -1,10 +1,9 @@
-import os
-import openai
-import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv, find_dotenv
+from openai import OpenAI
+import os
 
 # Initialize FastAPI server
 server = FastAPI()
@@ -23,19 +22,9 @@ server.add_middleware(
 load_dotenv(find_dotenv())
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Set the OpenAI API key
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Define request model
-class ChatRequest(BaseModel):
-    prompt: str
-
-# Define response model
-class ChatResponse(BaseModel):
-    response: str
-
-# Task instructions
-TASK_INSTRUCTIONS = {
+FEW_SHOT_PROMPTS = {
     1: """
     AI Interlocutor (Mr. Blair):
         You are Mr. Blair, the manager of an IT company in Aizu-Wakamatsu. A student from the local university has come to your office to speak with you. You do not know the student, so this is your first meeting. Your role is to respond to the student's inquiries or requests without initiating the beginning or end of the conversation. Maintain a professional and courteous demeanor throughout the interaction.
@@ -44,7 +33,6 @@ TASK_INSTRUCTIONS = {
         - AI Interlocutor (Mr. Blair): Responds to the student's inquiries or requests as the manager of the IT company.
         
     Rules:
-        - Response have no questions.
         - Response have no questions like "How can I assist you today?" and at the end of response.
         - Response have no exclamatory statements at the first sentence.
         - Keep responses short and professional.
@@ -76,7 +64,6 @@ TASK_INSTRUCTIONS = {
     Rules:
         - Response have no questions like "How can I assist you today?" and at the end of response.
         - Response have no exclamatory statements at the first sentence.
-        - Response have no questions.
         - Keep responses short and friendly.
         - Do not initiate the beginning or end of the conversation.
         - Always grant the friend's request.
@@ -117,7 +104,6 @@ TASK_INSTRUCTIONS = {
     Rules:
         - Response have no questions like "How can I assist you today?" and at the end of response.
         - Response have no exclamatory statements at the first sentence.
-        - Response have no questions.
         - Keep responses short and friendly.
         - Do not initiate the beginning or end of the conversation.
         - Always grant the friend's request.
@@ -161,7 +147,6 @@ TASK_INSTRUCTIONS = {
     Rules:
         - Response have no questions like "How can I assist you today?" and at the end of response.
         - Response have no exclamatory statements at the first sentence.
-        - Response have no questions.
         - Keep responses short and friendly.
         - Do not initiate the beginning or end of the conversation.
         - Always grant the student's request.
@@ -191,115 +176,85 @@ TASK_INSTRUCTIONS = {
 }
 
 
-# Create OpenAI connection to access its threads and assistants
-openai_client = openai.OpenAI()
-openai_threads = openai_client.beta.threads
-openai_assistants = openai_client.beta.assistants
+# Define request model
+class ChatRequest(BaseModel):
+    prompt: str
 
-async def create_assistant(instructions):
-    assistant = openai_assistants.create(
-        name="Assistant",
-        instructions=instructions,
-        tools=[],
-        model="gpt-3.5-turbo",
-        temperature=0.05,
-        top_p=1
+# Define response model
+class ChatResponse(BaseModel):
+    response: str
+
+# Format few-shot prompt
+def format_few_shot_prompt(task_number, user_input):
+    examples = FEW_SHOT_PROMPTS[task_number]
+    user_prompt = f"\nStudent: {user_input}\nMr. Blair:"
+    if task_number == 2:
+        user_prompt = f"\nFriend: {user_input}\nAizu University Student:"
+    elif task_number == 3:
+        user_prompt = f"\nFriend: {user_input}\nAizu University Student:"
+    elif task_number == 4:
+        user_prompt = f"\nStudent: {user_input}\nMr. Smith:"
+    return examples + user_prompt
+
+async def get_openai_response(prompt):
+    response = client.chat.completions.create(
+        model="gpt-4",  # Replace with your specific model
+        messages=[
+            {"role": "system", "content": "You are inside a roleplay conversation."},
+            {"role": "user", "content": prompt},
+            {"role": "system", "content": "Don't use exclamation sentence too much, keep it professional and friendly."},
+            {"role": "system", "content": "Close to the prompt, not response anything like 'How can I assist you today?' or 'What can I do for you?' or 'How can I help you?' or 'What do you need?' or 'How may I help you?' or 'How can I help you today?' or 'How can I assist you'"},
+            {"role": "system", "content": "User may ask about basic personal information, but when user ask something off-topic, you must return 'Your question is off the scope of the role-play exercise.'"},
+        ],
+        max_tokens=150,
+        temperature=0.5,
+        top_p=1,
+        n=1
     )
-    return assistant
-
-async def ask_assistant(user_question, thread, assistant):
-    # Pass in the user question into the existing thread
-    openai_threads.messages.create(
-        thread_id=thread.id,
-        role="user",
-        content=user_question
-    )
-
-    # Use runs to wait for the assistant response
-    run = openai_threads.runs.create(
-        thread_id=thread.id,
-        assistant_id=assistant.id
-    )
-
-    # Wait for the run to complete
-    while True:
-        run_status = openai_threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
-        if run_status.status == "completed":
-            break
-        await asyncio.sleep(1)
-
-    return run
-
-async def assistant_response(thread, run):
-    # Get the messages list from the thread
-    messages = openai_threads.messages.list(thread_id=thread.id)
-    # Get the last message for the current run
-    last_message = [message for message in messages.data if message.run_id == run.id and message.role == "assistant"][-1]
-    # If an assistant message is found, return it
-    if last_message:
-        return last_message.content[0].text.value
-    else:
-        return "I'm sorry, I am not sure how to answer that. Can you ask another question?"
+    response_text = response.choices[0].message.content.strip()
+    # Remove question marks from the response
+    response_text = response_text.replace('?', '')
+    return response_text
 
 # Define the API endpoints for each task
 @server.post("/chat/task1", response_model=ChatResponse)
 async def chat_task1(request: ChatRequest):
     try:
-        instructions = TASK_INSTRUCTIONS[1]
-        assistant = await create_assistant(instructions)
-        thread = openai_threads.create()
-
-        user_question = request.prompt
-        run = await ask_assistant(user_question, thread, assistant)
-        response_text = await assistant_response(thread, run)
-
+        formatted_prompt = format_few_shot_prompt(1, request.prompt)
+        response_text = await get_openai_response(formatted_prompt)
         return {"response": response_text}
     except Exception as e:
+        import traceback; traceback.print_exc();
         raise HTTPException(status_code=500, detail=str(e))
 
 @server.post("/chat/task2", response_model=ChatResponse)
 async def chat_task2(request: ChatRequest):
     try:
-        instructions = TASK_INSTRUCTIONS[2]
-        assistant = await create_assistant(instructions)
-        thread = openai_threads.create()
-
-        user_question = request.prompt
-        run = await ask_assistant(user_question, thread, assistant)
-        response_text = await assistant_response(thread, run)
-
+        formatted_prompt = format_few_shot_prompt(2, request.prompt)
+        response_text = await get_openai_response(formatted_prompt)
         return {"response": response_text}
     except Exception as e:
+        import traceback; traceback.print_exc();
         raise HTTPException(status_code=500, detail=str(e))
 
 @server.post("/chat/task3", response_model=ChatResponse)
 async def chat_task3(request: ChatRequest):
     try:
-        instructions = TASK_INSTRUCTIONS[3]
-        assistant = await create_assistant(instructions)
-        thread = openai_threads.create()
-
-        user_question = request.prompt
-        run = await ask_assistant(user_question, thread, assistant)
-        response_text = await assistant_response(thread, run)
-
+        formatted_prompt = format_few_shot_prompt(3, request.prompt)
+        response_text = await get_openai_response(formatted_prompt)
         return {"response": response_text}
     except Exception as e:
+        import traceback; traceback.print_exc();
         raise HTTPException(status_code=500, detail=str(e))
 
 @server.post("/chat/task4", response_model=ChatResponse)
 async def chat_task4(request: ChatRequest):
     try:
-        instructions = TASK_INSTRUCTIONS[4]
-        assistant = await create_assistant(instructions)
-        thread = openai_threads.create()
-
-        user_question = request.prompt
-        run = await ask_assistant(user_question, thread, assistant)
-        response_text = await assistant_response(thread, run)
-
+        formatted_prompt = format_few_shot_prompt(4, request.prompt)
+        response_text = await get_openai_response(formatted_prompt)
         return {"response": response_text}
     except Exception as e:
+        import traceback; traceback.print_exc();
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
