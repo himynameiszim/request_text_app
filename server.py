@@ -198,15 +198,16 @@ def format_few_shot_prompt(task_number, user_input):
 
 async def get_openai_response(prompt):
     response = client.chat.completions.create(
-        model="gpt-4",  # Replace with your specific model
+        model="gpt-3.5-turbo-0125",  # Replace with your specific model
         messages=[
             {"role": "system", "content": "You are inside a roleplay conversation."},
             {"role": "user", "content": prompt},
-            {"role": "system", "content": "Don't use exclamation sentence too much, keep it professional and friendly."},
+            {"role": "system", "content": "Max response sentence number are 2."},
+            {"role": "system", "content": "Response following user's style, but keep it professional and friendly."},
             {"role": "system", "content": "Close to the prompt, not response anything like 'How can I assist you today?' or 'What can I do for you?' or 'How can I help you?' or 'What do you need?' or 'How may I help you?' or 'How can I help you today?' or 'How can I assist you'"},
             {"role": "system", "content": "User may ask about basic personal information, but when user ask something off-topic, you must return 'Your question is off the scope of the role-play exercise.'"},
         ],
-        max_tokens=150,
+        max_tokens=80,
         temperature=0.5,
         top_p=1,
         n=1

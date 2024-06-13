@@ -8,12 +8,15 @@ const endpoints = [
     `${import.meta.env.VITE_BASE_URL}/chat/task4`
 ];
 
+let countdownTimer;
+let countdownSeconds = 120;
+
 async function sendPrompt() {
     const promptElement = document.getElementById('prompt');
     const prompt = promptElement.value.trim();
 
     if (prompt === '') {
-        addMessageToChatLog('<strong>Predatory Scientist:</strong> You are sending an empty message. Type something in chat box and try again.');
+        addMessageToChatLog('<strong>GPT:</strong> You are sending an empty message. Type something in chat box and try again.');
         return;
     }
 
@@ -28,7 +31,7 @@ async function sendPrompt() {
         console.log('Prompt submitted:', prompt);
 
         const text = response.data.response;
-        addMessageToChatLog('<strong>Predatory Scientist:</strong> ' + text);
+        addMessageToChatLog('<strong>GPT:</strong> ' + text);
     } catch (error) {
         console.error('Error submitting prompt:', error);
     }
@@ -52,10 +55,30 @@ function printChat() {
 }
 
 function nextTask() {
-    currentTaskIndex = (currentTaskIndex + 1) % endpoints.length;
-    seconds = 5;
-    showTaskTextbox(currentTaskIndex);
+    currentTaskIndex++;
+    if (currentTaskIndex < endpoints.length) {
+        showTaskTextbox(currentTaskIndex);
+        startCountdown();
+    } else {
+        const nextTaskButton = $('#nextTask');
+        nextTaskButton.disabled = true;
+        clearInterval(countdownTimer);
+        document.getElementById('timer').innerHTML = 'All tasks completed!';
+    }
 }
+
+function startTask() {
+    document.getElementById('prompt').disabled = false;
+    document.getElementById('sendPrompt').disabled = false;
+    hideTaskTextboxes();
+    const nextTaskButton = $('#nextTask');
+    nextTaskButton.disabled = true; // Disable the Next Task button until countdown reaches 0
+    const timerElement = document.getElementById('timer');
+    if (timerElement) {
+        timerElement.innerHTML = countdownSeconds + ' seconds'; // Display the remaining time
+    }
+}
+
 
 function showTaskTextbox(index) {
     hideTaskTextboxes();
@@ -75,6 +98,7 @@ function hideTaskTextboxes() {
 $('#sendPrompt').addEventListener('click', sendPrompt);
 $('#printChat').addEventListener('click', printChat);
 $('#nextTask').addEventListener('click', nextTask);
+$('#startTask').addEventListener('click', startTask);
 
 document.addEventListener('DOMContentLoaded', function() {
     const taskContainer = document.getElementById('task-container');
@@ -92,46 +116,36 @@ document.addEventListener('DOMContentLoaded', function() {
         taskContainer.appendChild(textarea);
     });
     showTaskTextbox(currentTaskIndex);
+    startCountdown();
+});
 
-    // Disable the "Next Task" button initially
+// Ensure the countdown continues
+function startCountdown() {
+    clearInterval(countdownTimer);
+    countdownSeconds = 30; // Set your desired countdown seconds
     const nextTaskButton = $('#nextTask');
     nextTaskButton.disabled = true;
+    const startTaskButton = $('#startTask');
+    startTaskButton.disabled = false;
 
-    // Enable the "Next Task" button after 5 minutes (300000 milliseconds)
-    setTimeout(() => {
-        nextTaskButton.disabled = false;
-    }, 5000);
-});
+    document.getElementById('prompt').disabled = true;
+    document.getElementById('sendPrompt').disabled = true;
 
-let seconds = 5;
+    const timerElement = document.getElementById('timer');
+    if (!timerElement) return;
 
-function countDown() {
-    seconds--;
-    document.getElementById('time').innerHTML = seconds + ' seconds ';
-    if (seconds <= 0) {
-        clearInterval(myVar);
-        document.getElementById('timer').innerHTML = 'Time is up!';
-        hideTaskTextboxes();
-    }
-}
-const myVar = setInterval(countDown, 1000);
+    timerElement.innerHTML = countdownSeconds + ' seconds';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const chatLog = document.getElementById('chat-log');
-    const nextTaskButton = document.getElementById('nextTask');
-
-    nextTaskButton.addEventListener('click', () => {
-        chatLog.innerHTML = ''; // Clear all content in the chat log
-    });
-
-    // Example of adding a message to the chat log (for context)
-    document.getElementById('sendPrompt').addEventListener('click', () => {
-        const prompt = document.getElementById('prompt').value;
-        if (prompt.trim() !== '') {
-            const message = document.createElement('div');
-            message.textContent = prompt;
-            chatLog.appendChild(message);
-            document.getElementById('prompt').value = '';
+    countdownTimer = setInterval(() => {
+        countdownSeconds--;
+        timerElement.innerHTML = countdownSeconds + ' seconds';
+        if (countdownSeconds <= 0) {
+            clearInterval(countdownTimer);
+            timerElement.innerHTML = 'Time is up!';
+            hideTaskTextboxes();
+            document.getElementById('prompt').disabled = false;
+            document.getElementById('sendPrompt').disabled = false;
+            nextTaskButton.disabled = false; // Enable the Next Task button when time is up
         }
-    });
-});
+    }, 1000);
+}
