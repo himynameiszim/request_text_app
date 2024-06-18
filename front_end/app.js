@@ -16,7 +16,7 @@ async function sendPrompt() {
     const prompt = promptElement.value.trim();
 
     if (prompt === '') {
-        addMessageToChatLog('<strong>GPT:</strong> You are sending an empty message. Type something in chat box and try again.');
+        addMessageToChatLog('<strong>Male:</strong> You are sending an empty message. Type something in chat box and try again.');
         return;
     }
 
@@ -31,7 +31,7 @@ async function sendPrompt() {
         console.log('Prompt submitted:', prompt);
 
         const text = response.data.response;
-        addMessageToChatLog('<strong>GPT:</strong> ' + text);
+        addMessageToChatLog('<strong>Male:</strong> ' + text);
     } catch (error) {
         console.error('Error submitting prompt:', error);
     }
