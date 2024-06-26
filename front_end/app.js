@@ -9,14 +9,14 @@ const endpoints = [
 ];
 
 let countdownTimer;
-let countdownSeconds = 120;
+let countdownSeconds = 5;
 
 async function sendPrompt() {
     const promptElement = document.getElementById('prompt');
     const prompt = promptElement.value.trim();
 
     if (prompt === '') {
-        addMessageToChatLog('<strong>Male:</strong> You are sending an empty message. Type something in chat box and try again.');
+        addMessageToChatLog('<strong>Interlocutor:</strong> You are sending an empty message. Type something in chat box and try again.');
         return;
     }
 
@@ -31,7 +31,7 @@ async function sendPrompt() {
         console.log('Prompt submitted:', prompt);
 
         const text = response.data.response;
-        addMessageToChatLog('<strong>Male:</strong> ' + text);
+        addMessageToChatLog('<strong>Interlocutor:</strong> ' + text);
     } catch (error) {
         console.error('Error submitting prompt:', error);
     }
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Ensure the countdown continues
 function startCountdown() {
     clearInterval(countdownTimer);
-    countdownSeconds = 30; // Set your desired countdown seconds
+    countdownSeconds = 5; // Set your desired countdown seconds
     const nextTaskButton = $('#nextTask');
     nextTaskButton.disabled = true;
     const startTaskButton = $('#startTask');
