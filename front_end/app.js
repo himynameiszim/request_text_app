@@ -10,13 +10,14 @@ const endpoints = [
 
 let countdownTimer;
 let countdownSeconds = 5;
+const printCheck = new Array(4).fill(false);
 
 async function sendPrompt() {
     const promptElement = document.getElementById('prompt');
     const prompt = promptElement.value.trim();
 
     if (prompt === '') {
-        addMessageToChatLog('<strong>GPT:</strong> You are sending an empty message. Type something in chat box and try again.');
+        addMessageToChatLog('<strong>Interlocutor:</strong> You are sending an empty message. Type something in chat box and try again.');
         return;
     }
 
@@ -31,7 +32,7 @@ async function sendPrompt() {
         console.log('Prompt submitted:', prompt);
 
         const text = response.data.response;
-        addMessageToChatLog('<strong>GPT:</strong> ' + text);
+        addMessageToChatLog('<strong>Interlocutor:</strong> ' + text);
     } catch (error) {
         console.error('Error submitting prompt:', error);
     }
@@ -50,6 +51,7 @@ function clearChatLog() {
 }
 
 function printChat() {
+    printCheck[currentTaskIndex] = true;
     const chatContent = document.getElementById('chat-log').innerHTML;
     const printWindow = window.open('', '_blank');
     printWindow.document.write('<html><head><title>Chat Log</title></head><body>');
@@ -59,7 +61,14 @@ function printChat() {
     printWindow.print();
 }
 
+function showNotification() {
+    console.log('Please print/save the chat log before proceeding to the next task!');
+    alert('Please print/save the chat log before proceeding to the next task!');
+}
 function nextTask() {
+    if (printCheck[currentTaskIndex] === false) {
+        showNotification();
+    } else {
     currentTaskIndex++;
     if (currentTaskIndex < endpoints.length) {
         clearChatLog(); // Clear the chat log before showing the next task
@@ -70,6 +79,7 @@ function nextTask() {
         nextTaskButton.disabled = true;
         clearInterval(countdownTimer);
         document.getElementById('timer').innerHTML = 'All tasks completed!';
+    }
     }
 }
 
@@ -128,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Ensure the countdown continues
 function startCountdown() {
     clearInterval(countdownTimer);
-    countdownSeconds = 5; // Set your desired countdown seconds
+    countdownSeconds = 5; // Set your desired countdown seconds before the student can start typing
     const nextTaskButton = $('#nextTask');
     nextTaskButton.disabled = true;
     const startTaskButton = $('#startTask');

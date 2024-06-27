@@ -48,13 +48,17 @@ FEW_SHOT_PROMPTS = {
 
     Example Dialogue:
         Student: "Hi"
-        Mr. Blair: "Greetings!"
+        Mr. Blair: "Good afternoon!"
+        Student: "How are you?"
+        Mr. Blair: "I am good, thank you for asking"
         
         Student: "Hello"
-        Mr. Blair: "Greetings!"
+        Mr. Blair: "Good afternoon!"
+        Student: "How are you today?"
+        Mr. Blair: "I am good, thank you for asking"
     
         Student: "Hello Mr. Blair, thank you for taking the time to meet with me today. I'm organizing an event to showcase local businesses' products to the public, and I would like to use a photograph of your company's products in our event flyer. May I have your permission to use the photograph?"
-        Mr. Blair: "Greetings! Thank you for considering our products for your event flyer. I appreciate your initiative in reaching out for permission. Before I provide consent, could you please provide more details about the event and how the photograph will be used? I want to ensure that our products are represented appropriately."
+        Mr. Blair: "Good afternoon! Thank you for considering our products for your event flyer. I appreciate your initiative in reaching out for permission. Before I provide consent, could you please provide more details about the event and how the photograph will be used? I want to ensure that our products are represented appropriately."
 
         Student: "Thanks for your response."
         Mr. Blair: "You're welcome. I look forward to hearing more about your event and how our products will be featured."
@@ -211,7 +215,7 @@ async def get_openai_response(prompt):
         messages=[
             {"role": "system", "content": "You are inside a roleplay conversation."},
             {"role": "user", "content": prompt},
-            {"role": "system", "content": "Max response sentence number are 2."},
+            {"role": "system", "content": "Response in one sentence only."},
             {"role": "system", "content": "Response following user's style, but keep it professional and friendly."},
             {"role": "system", "content": "Close to the prompt, not response anything like 'How can I assist you today?' or 'What can I do for you?' or 'How can I help you?' or 'What do you need?' or 'How may I help you?' or 'How can I help you today?' or 'How can I assist you'"},
             {"role": "system", "content": "User may ask about basic personal information, but when user ask something off-topic, you must return 'Your question is off the scope of the role-play exercise.'"},
