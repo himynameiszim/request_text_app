@@ -4,6 +4,11 @@ from pydantic import BaseModel
 from dotenv import load_dotenv, find_dotenv
 from openai import OpenAI
 import os
+import nltk
+from nltk.tokenize import sent_tokenize
+
+# Download the punkt package for sentence tokenization
+nltk.download('punkt')
 
 # Initialize FastAPI server
 server = FastAPI()
@@ -219,7 +224,11 @@ async def get_openai_response(prompt):
     response_text = response.choices[0].message.content.strip()
     # Remove question marks from the response
     response_text = response_text.replace('?', '')
-    return response_text
+    # Split the response into sentences using nltk
+    sentences = sent_tokenize(response_text)
+    # Return the first sentence
+    first_sentence = sentences[0]
+    return first_sentence.strip()
 
 # Define the API endpoints for each task
 @server.post("/chat/task1", response_model=ChatResponse)
