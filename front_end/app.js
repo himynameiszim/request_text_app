@@ -16,7 +16,7 @@ async function sendPrompt() {
     const prompt = promptElement.value.trim();
 
     if (prompt === '') {
-        addMessageToChatLog('<strong>Interlocutor:</strong> You are sending an empty message. Type something in chat box and try again.');
+        addMessageToChatLog('<strong>GPT:</strong> You are sending an empty message. Type something in chat box and try again.');
         return;
     }
 
@@ -31,7 +31,7 @@ async function sendPrompt() {
         console.log('Prompt submitted:', prompt);
 
         const text = response.data.response;
-        addMessageToChatLog('<strong>Interlocutor:</strong> ' + text);
+        addMessageToChatLog('<strong>GPT:</strong> ' + text);
     } catch (error) {
         console.error('Error submitting prompt:', error);
     }
@@ -42,6 +42,11 @@ function addMessageToChatLog(message) {
     const formattedMessage = message.replace(/\n\n/g, '\n').replace(/\n/g, '<br>');
     chatLog.innerHTML += '<p>' + formattedMessage + '</p>';
     chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function clearChatLog() {
+    const chatLog = document.getElementById('chat-log');
+    chatLog.innerHTML = '';
 }
 
 function printChat() {
@@ -57,6 +62,7 @@ function printChat() {
 function nextTask() {
     currentTaskIndex++;
     if (currentTaskIndex < endpoints.length) {
+        clearChatLog(); // Clear the chat log before showing the next task
         showTaskTextbox(currentTaskIndex);
         startCountdown();
     } else {
